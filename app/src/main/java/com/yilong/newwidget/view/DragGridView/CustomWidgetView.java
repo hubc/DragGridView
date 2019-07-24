@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yilong.newwidget.EditWidgetActivity;
+import com.yilong.newwidget.GridDragShortActivity;
 import com.yilong.newwidget.R;
 import com.yilong.newwidget.WidgetInfo;
 
@@ -101,7 +102,8 @@ public class CustomWidgetView extends FrameLayout implements AdapterView.OnItemC
         findViewById(R.id.edit).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mContext.startActivity(new Intent(mContext, EditWidgetActivity.class));
+                //mContext.startActivity(new Intent(mContext, EditWidgetActivity.class));
+                mContext.startActivity(new Intent(mContext, GridDragShortActivity.class));
             }
         });
 
