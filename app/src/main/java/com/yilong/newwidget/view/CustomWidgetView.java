@@ -1,4 +1,4 @@
-package com.yilong.newwidget.view.DragGridView;
+package com.yilong.newwidget.view;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,23 +24,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yilong.newwidget.EditWidgetActivity;
-import com.yilong.newwidget.GridDragShortActivity;
+import com.yilong.newwidget.MainActivity;
 import com.yilong.newwidget.R;
 import com.yilong.newwidget.WidgetInfo;
 
 import java.util.ArrayList;
 
-/**
- * @author leichenrd
- * @date 2019/7/11.
- * @desc 自定义滑动widgetview
- */
 public class CustomWidgetView extends FrameLayout implements AdapterView.OnItemClickListener {
 
     private Context mContext;
     private GridView gridView;
-    private int[] unselectedImageId;
-    private int[] selectedImageId;
     private ArrayList<WidgetInfo> widgetInfos = new ArrayList<>();
     private MyAdapter myAdapter;
     private int selectPosition = -1;
@@ -102,8 +95,7 @@ public class CustomWidgetView extends FrameLayout implements AdapterView.OnItemC
         findViewById(R.id.edit).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                //mContext.startActivity(new Intent(mContext, EditWidgetActivity.class));
-                mContext.startActivity(new Intent(mContext, GridDragShortActivity.class));
+                ((MainActivity) mContext).startActivityForResult(new Intent(mContext, EditWidgetActivity.class), 1);
             }
         });
 
@@ -211,6 +203,11 @@ public class CustomWidgetView extends FrameLayout implements AdapterView.OnItemC
         });
     }
 
+    public void onActivityResult() {
+        widgetInfos = WidgetInfo.getShowedWidgetInfo();
+        myAdapter.notifyDataSetChanged();
+    }
+
     /**
      * 判断点击按钮区域 执行相应逻辑
      *
@@ -272,23 +269,7 @@ public class CustomWidgetView extends FrameLayout implements AdapterView.OnItemC
     protected void onFinishInflate() {
         super.onFinishInflate();
         gridView = findViewById(R.id.gridView);
-
-        unselectedImageId = new int[]{R.mipmap.unselected_check_in, R.mipmap.unselected_check_out,
-                R.mipmap.unselected_go_out, R.mipmap.unselected_goback, R.mipmap.unselected_overtime_check_in,
-                R.mipmap.unselected_overtime_check_out};
-        selectedImageId = new int[]{R.mipmap.selected_check_in, R.mipmap.selected_check_out,
-                R.mipmap.selected_go_out, R.mipmap.selected_goback, R.mipmap.selected_overtime_check_in,
-                R.mipmap.selected_overtime_check_out};
-
-        String[] title = new String[]{"上班签到", "上班签退", "外出时间", "外出返回", "加班签到", "加班签退"};
-
-        for (int x = 0; x < 6; x++) {
-            WidgetInfo widgetInfo = new WidgetInfo();
-            widgetInfo.name = title[x];
-            widgetInfo.unselectedImage = unselectedImageId[x];
-            widgetInfo.selectedImage = selectedImageId[x];
-            widgetInfos.add(widgetInfo);
-        }
+        widgetInfos = WidgetInfo.getShowedWidgetInfo();
         myAdapter = new MyAdapter();
         gridView.setAdapter(myAdapter);
         gridView.setOnItemClickListener(this);
@@ -357,12 +338,12 @@ public class CustomWidgetView extends FrameLayout implements AdapterView.OnItemC
             final WidgetInfo widgetInfo = widgetInfos.get(position);
 
             if (selectPosition == position) {
-                imageView.setBackgroundResource(widgetInfo.selectedImage);
+                imageView.setBackgroundResource(widgetInfo.getSelectedImageId());
             } else {
-                imageView.setBackgroundResource(widgetInfo.unselectedImage);
+                imageView.setBackgroundResource(widgetInfo.getUnselectedImageId());
             }
 
-            textView.setText(widgetInfo.name);
+            textView.setText(widgetInfo.getNameId());
             return convertView;
         }
     }

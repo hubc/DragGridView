@@ -1,4 +1,4 @@
-package com.yilong.newwidget;
+package com.yilong.newwidget.view;
 
 import android.content.Context;
 import android.graphics.Point;
@@ -15,7 +15,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 
-public class DragChessView extends FrameLayout {
+import com.yilong.newwidget.DragAdapter;
+import com.yilong.newwidget.R;
+
+public class DragMainView extends FrameLayout {
     private GestureDetector detector;
     /**
      * 点击拖动
@@ -109,7 +112,6 @@ public class DragChessView extends FrameLayout {
                 mCopyView.setY(mCopyView.getY() - distanceY);
                 int to = eventToPosition(e2);
                 mCopyView.invalidate();
-                Log.d("clarkhu", "onScroll: isTouchInTop(e2) = " + isTouchInTop(e2));
                 //if (isDragInTop()) {
                 if (isTouchInTop(e2)) {
                     if (isDragFromBottom()) {
@@ -120,7 +122,6 @@ public class DragChessView extends FrameLayout {
                         }
                         if (canAddViewWhenDragChange) {// 保证移动过程中，数据只有一次的添加
                             mDragTop.addSwapView(mDragBottom.getSwapData());
-                            Log.d("clarkhu", "mDragBottom.removeSwapView()");
                             mDragBottom.removeSwapView();
                             canAddViewWhenDragChange = false;
                             if (hideView != null)
@@ -145,7 +146,6 @@ public class DragChessView extends FrameLayout {
                         }
                         if (canAddViewWhenDragChange) {
                             mDragBottom.addSwapView(mDragTop.getSwapData());
-                            Log.d("clarkhu", "mDragTop.removeSwapView()");
                             mDragTop.removeSwapView();
                             canAddViewWhenDragChange = false;
                             if (hideView != null)
@@ -161,7 +161,6 @@ public class DragChessView extends FrameLayout {
                         }
                     }
                     if (mDragBottom.isViewInitDone()) {
-                        Log.d("clarkhu", "dragChangePosition(mDragBottom, to)  to = " + to);
                         dragChangePosition(mDragBottom, to);
                     }
                 }
@@ -253,15 +252,15 @@ public class DragChessView extends FrameLayout {
     private View hideView;
     private long dragLongPressTime = 600;
 
-    public DragChessView(@NonNull Context context) {
+    public DragMainView(@NonNull Context context) {
         this(context, null);
     }
 
-    public DragChessView(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public DragMainView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, -1);
     }
 
-    public DragChessView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public DragMainView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(attrs);
     }
@@ -271,7 +270,7 @@ public class DragChessView extends FrameLayout {
         detector = new GestureDetector(context, simpleOnGestureListener);
         detector.setIsLongpressEnabled(false);
         mDragFrame = new FrameLayout(context);
-        dragSlider = LayoutInflater.from(context).inflate(R.layout.layout_drag_chess, this, false);
+        dragSlider = LayoutInflater.from(context).inflate(R.layout.view_drag_main, this, false);
         mDragTop = dragSlider.findViewById(R.id.drag_top);
         mDragBottom = dragSlider.findViewById(R.id.drag_bottom);
         addView(dragSlider, -1, -1);
@@ -406,10 +405,8 @@ public class DragChessView extends FrameLayout {
 
         if (ev != null) {
             if (isTouchInTop(ev)) {
-                Log.d("clarkhu", "return mDragTop.eventToPosition(ev)");
                 return mDragTop.eventToPosition(ev);
             } else {
-                Log.d("clarkhu", "return mDragBottom.eventToPosition(ev)");
                 return mDragBottom.eventToPosition(ev);
             }
         }

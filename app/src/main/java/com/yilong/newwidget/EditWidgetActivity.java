@@ -1,100 +1,121 @@
 package com.yilong.newwidget;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.yilong.newwidget.view.DragGridView.DragGridView;
-import com.yilong.newwidget.view.DragGridView.DragScrollView;
+import com.yilong.newwidget.view.DragMainView;
 
 import java.util.ArrayList;
 
-/**
- * @author leichenrd
- * @date 2019/7/12.
- * @desc
- */
-public class EditWidgetActivity extends Activity {
-    private DragScrollView dragScrollView;
+public class EditWidgetActivity extends AppCompatActivity {
 
-    private ArrayList<WidgetInfo> widgetInfos = new ArrayList<>();
-    private int[] unselectedImageId;
-    private int[] selectedImageId;
+    DragMainView drag_main;
+    ImageView commit;
+    ImageView close;
+    private ArrayList<WidgetInfo> bottomList = new ArrayList<>();
+    private ArrayList<WidgetInfo> topList = new ArrayList<>();
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_widget);
+        drag_main = findViewById(R.id.drag_main);
+        drag_main.setDragModel(DragMainView.DRAG_BY_LONG_CLICK);
+        commit = findViewById(R.id.commit);
+        close = findViewById(R.id.close);
 
-        unselectedImageId = new int[]{R.mipmap.unselected_check_in, R.mipmap.unselected_check_out,
-                R.mipmap.unselected_go_out, R.mipmap.unselected_goback, R.mipmap.unselected_overtime_check_in,
-                R.mipmap.unselected_overtime_check_out};
-        selectedImageId = new int[]{R.mipmap.selected_check_in, R.mipmap.selected_check_out,
-                R.mipmap.selected_go_out, R.mipmap.selected_goback, R.mipmap.selected_overtime_check_in,
-                R.mipmap.selected_overtime_check_out};
-
-        String[] title = new String[]{"上班签到", "上班签退", "外出时间", "外出返回", "加班签到", "加班签退"};
-
-        for (int x = 0; x < 6; x++) {
-            WidgetInfo widgetInfo = new WidgetInfo();
-            widgetInfo.name = title[x];
-            widgetInfo.unselectedImage = unselectedImageId[x];
-            widgetInfo.selectedImage = selectedImageId[x];
-            widgetInfos.add(widgetInfo);
+        topList = WidgetInfo.getShowedWidgetInfo();
+        bottomList = WidgetInfo.getHiddenWidgetInfo();
+        for (WidgetInfo info : topList) {
+            if (info.getEditState() != -1) {
+                info.setEditState(-1);
+            }
         }
-
-        for (int x = 0; x < 6; x++) {
-            WidgetInfo widgetInfo = new WidgetInfo();
-            widgetInfo.name = title[x];
-            widgetInfo.unselectedImage = unselectedImageId[x];
-            widgetInfo.selectedImage = selectedImageId[x];
-            widgetInfos.add(widgetInfo);
+        for (WidgetInfo info : bottomList) {
+            if (info.getEditState() != -1) {
+                info.setEditState(-1);
+            }
         }
+        drag_main.setTopAdapter(new MyAdapter(topList, 0));
+        drag_main.setBottomAdapter(new MyAdapter(bottomList, 1));
 
-        for (int x = 0; x < 6; x++) {
-            WidgetInfo widgetInfo = new WidgetInfo();
-            widgetInfo.name = title[x];
-            widgetInfo.unselectedImage = unselectedImageId[x];
-            widgetInfo.selectedImage = selectedImageId[x];
-            widgetInfos.add(widgetInfo);
-        }
-
-
-        for (int x = 0; x < 6; x++) {
-            WidgetInfo widgetInfo = new WidgetInfo();
-            widgetInfo.name = title[x];
-            widgetInfo.unselectedImage = unselectedImageId[x];
-            widgetInfo.selectedImage = selectedImageId[x];
-            widgetInfos.add(widgetInfo);
-        }
-
-
-        dragScrollView = findViewById(R.id.dragScrollView);
-        DragGridView topGridView = findViewById(R.id.topGridview);
-        topGridView.setAdapter(new MyAdapter());
-
-        topGridView.setScrollView(dragScrollView);
-
-//        DragGridView bottomGridView = findViewById(R.id.bottomGridview);
-//        bottomGridView.setAdapter(new TopMyAdapter());
-
+        commit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (WidgetInfo info : WidgetInfo.getAllWidgetInfo()) {
+                    if (info.getEditState() == 0) {
+                        info.setShowState(true);
+                        info.setEditState(-1);
+                    } else if (info.getEditState() == 1) {
+                        info.setShowState(false);
+                        info.setEditState(-1);
+                    }
+                }
+                setResult(RESULT_OK);
+                finish();
+            }
+        });
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (WidgetInfo info : WidgetInfo.getAllWidgetInfo()) {
+                    if (info.getEditState() != -1) {
+                        info.setEditState(-1);
+                    }
+                }
+                setResult(RESULT_CANCELED);
+                finish();
+            }
+        });
     }
 
-    class TopMyAdapter extends BaseAdapter {
+    class MyAdapter extends DragAdapter {
+        ArrayList<WidgetInfo> list;
+        int tag;
+
+        public MyAdapter(ArrayList<WidgetInfo> list, int tag) {
+            this.list = list;
+            this.tag = tag;
+        }
+        @Override
+        public void onDataModelMove(int from, int to) {
+            Log.d("clarkhu", "from = " + from + "; to = " + to);
+            WidgetInfo s = list.remove(from);
+            list.add(to, s);
+        }
+
+        @Override
+        public Object getSwapData(int position) {
+            return getItem(position);
+        }
+
+        @Override
+        public void removeData(int position) {
+            Log.d("clarkhu", "removeData() position = " + position);
+            list.remove(position);
+        }
+
+        @Override
+        public void addNewData(Object data) {
+            Log.d("clarkhu", "addNewData()");
+            WidgetInfo info = (WidgetInfo) data;
+            info.setEditState(tag);
+            list.add(info);
+        }
 
         @Override
         public int getCount() {
-            return 0;
+            return list.size();
         }
 
         @Override
-        public Object getItem(int position) {
-            return null;
+        public WidgetInfo getItem(int position) {
+            return list.get(position);
         }
 
         @Override
@@ -104,64 +125,15 @@ public class EditWidgetActivity extends Activity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-
-            convertView = View.inflate(EditWidgetActivity.this, R.layout.item_widget, null);
-
+            if (convertView == null) {
+                convertView = View.inflate(EditWidgetActivity.this, R.layout.item_widget, null);
+            }
             ImageView imageView = convertView.findViewById(R.id.img);
             TextView textView = convertView.findViewById(R.id.text);
-            final WidgetInfo widgetInfo = widgetInfos.get(position);
-
-            imageView.setBackgroundResource(widgetInfo.unselectedImage);
-
-            textView.setText(widgetInfo.name);
+            WidgetInfo widgetInfo = list.get(position);
+            imageView.setBackgroundResource(widgetInfo.getUnselectedImageId());
+            textView.setText(widgetInfo.getNameId());
             return convertView;
         }
     }
-
-
-    class MyAdapter extends BaseAdapter implements DragGridBaseAdapter {
-
-        @Override
-        public int getCount() {
-            return widgetInfos.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-
-            convertView = View.inflate(EditWidgetActivity.this, R.layout.item_widget, null);
-
-            ImageView imageView = convertView.findViewById(R.id.img);
-            TextView textView = convertView.findViewById(R.id.text);
-            final WidgetInfo widgetInfo = widgetInfos.get(position);
-
-            imageView.setBackgroundResource(widgetInfo.unselectedImage);
-
-            textView.setText(widgetInfo.name);
-            return convertView;
-        }
-
-        @Override
-        public void reorderItems(int oldPosition, int newPosition) {
-
-        }
-
-        @Override
-        public void setHideItem(int hidePosition) {
-
-
-        }
-    }
-
-
 }

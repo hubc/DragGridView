@@ -4,12 +4,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.yilong.newwidget.DragView
+    <com.yilong.newwidget.view.DragView
         android:id="@+id/drag_top"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="#ffffff" />
+        android:background="#7ac143" />
 
     <TextView
         android:id="@+id/folder_title"
@@ -17,14 +17,14 @@
         android:layout_height="40dp"
         android:background="#0586F9"
         android:gravity="center"
-        android:text="hubocai"
+        android:text="@string/zk_hide_widget_text"
         android:textColor="#ffffff"
         android:textSize="18sp" />
 
-    <com.yilong.newwidget.DragView
+    <com.yilong.newwidget.view.DragView
         android:id="@+id/drag_bottom"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="#ffffff" />
+        android:background="#FF4081" />
 </LinearLayout>

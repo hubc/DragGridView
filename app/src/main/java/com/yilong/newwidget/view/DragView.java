@@ -1,4 +1,4 @@
-package com.yilong.newwidget;
+package com.yilong.newwidget.view;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -18,6 +18,7 @@ import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ScrollView;
 
+import com.yilong.newwidget.DragAdapter;
 import com.yilong.newwidget.R;
 
 import java.util.ArrayList;
@@ -338,7 +339,11 @@ public class DragView<T> extends FrameLayout {
     public int eventToPosition(MotionEvent ev) {
         if (ev != null) {
             int m = (int) ev.getX() / mColWidth;
-            int n = (int) (ev.getY() - getY() + mCurrentY) / mColHeight;
+            Log.d("clarkhu", "eventToPosition: mColHeight = " + mColHeight);
+            int n = 0;
+            if (mColHeight != 0) {
+                n = (int) (ev.getY() - getY() + mCurrentY) / mColHeight;
+            }
             int position = n * mNumColumns + m;
             if (position >= mChildCount) {
                 Log.d("clarkhu", "eventToPosition: position >= mChildCount");
